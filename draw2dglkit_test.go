@@ -19,7 +19,7 @@ var (
 
 func BenchmarkIsPointInShape(b *testing.B) {
 	width, height = 800, 600
-	
+
 	glfw.WindowHint(glfw.Visible, glfw.False)
 	offscreen, err := glfw.CreateWindow(width, height, "Offscreen (You shouldnt see this)", nil, nil)
 	if err != nil {
@@ -27,7 +27,7 @@ func BenchmarkIsPointInShape(b *testing.B) {
 	}
 	offscreen.MakeContextCurrent()
 	reshape(width, height)
-	
+
 	glfw.WindowHint(glfw.Visible, glfw.True)
 	window, err := glfw.CreateWindow(width, height, "BenchmarkIsPointInShape", nil, nil)
 	if err != nil {
@@ -36,10 +36,10 @@ func BenchmarkIsPointInShape(b *testing.B) {
 	window.MakeContextCurrent()
 	glfw.SwapInterval(0)
 	reshape(width, height)
-	
+
 	rect := &draw2d.Path{}
 	draw2dkit.Rectangle(rect, 0, 0, 10, 10)
-	
+
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		IsPointInShape(gc, offscreen, 0, 0, rect)
@@ -51,7 +51,7 @@ func BenchmarkIsPointInShape(b *testing.B) {
 
 func TestIsPointInShape(t *testing.T) {
 	width, height = 800, 600
-	
+
 	glfw.WindowHint(glfw.Visible, glfw.False)
 	offscreen, err := glfw.CreateWindow(width, height, "Offscreen (You shouldnt see this)", nil, nil)
 	if err != nil {
@@ -59,7 +59,7 @@ func TestIsPointInShape(t *testing.T) {
 	}
 	offscreen.MakeContextCurrent()
 	reshape(width, height)
-	
+
 	glfw.WindowHint(glfw.Visible, glfw.True)
 	window, err := glfw.CreateWindow(width, height, "TestIsPointInShape", nil, nil)
 	if err != nil {
@@ -72,15 +72,14 @@ func TestIsPointInShape(t *testing.T) {
 
 	rect := &draw2d.Path{}
 	draw2dkit.Rectangle(rect, 0, 0, 10, 10)
-	
-	
+
 	if !IsPointInShape(gc, offscreen, 9, 9, rect) {
 		t.Error("Point incorrectly not found in shape.")
 	}
 	if IsPointInShape(gc, offscreen, 10, 10, rect) {
 		t.Error("Point incorrectly found in shape.")
 	}
-	
+
 	window.Destroy()
 	offscreen.Destroy()
 }
