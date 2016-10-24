@@ -28,24 +28,14 @@ func BenchmarkIsPointInShape(b *testing.B) {
 	offscreen.MakeContextCurrent()
 	reshape(width, height)
 
-	glfw.WindowHint(glfw.Visible, glfw.True)
-	window, err := glfw.CreateWindow(width, height, "BenchmarkIsPointInShape", nil, nil)
-	if err != nil {
-		panic(err)
-	}
-	window.MakeContextCurrent()
-	glfw.SwapInterval(0)
-	reshape(width, height)
-
 	rect := &draw2d.Path{}
 	draw2dkit.Rectangle(rect, 0, 0, 10, 10)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		IsPointInShape(gc, offscreen, 0, 0, rect)
+		IsPointInShape(gc, offscreen, 9, 9, rect)
 	}
 	b.StopTimer()
-	window.Destroy()
 	offscreen.Destroy()
 }
 
@@ -60,28 +50,40 @@ func TestIsPointInShape(t *testing.T) {
 	offscreen.MakeContextCurrent()
 	reshape(width, height)
 
-	glfw.WindowHint(glfw.Visible, glfw.True)
-	window, err := glfw.CreateWindow(width, height, "TestIsPointInShape", nil, nil)
-	if err != nil {
-		panic(err)
-	}
-	window.MakeContextCurrent()
-	glfw.SwapInterval(1)
-	reshape(width, height)
-	glfw.PollEvents()
-
 	rect := &draw2d.Path{}
-	draw2dkit.Rectangle(rect, 0, 0, 10, 10)
+	draw2dkit.Rectangle(rect, -1, -1, 1000, 1000)
 
-	if !IsPointInShape(gc, offscreen, 9, 9, rect) {
-		t.Error("Point incorrectly not found in shape.")
+	if IsPointInShape(gc, offscreen, -2, -2, rect) {
+		t.Error("Point incorrectly found in shape at (-2, -2).")
 	}
-	if IsPointInShape(gc, offscreen, 10, 10, rect) {
-		t.Error("Point incorrectly found in shape.")
+	if !IsPointInShape(gc, offscreen, -1, -1, rect) {
+		t.Error("Point incorrectly not found in shape at (-1, -1).")
+	}
+	if !IsPointInShape(gc, offscreen, 0, 0, rect) {
+		t.Error("Point incorrectly not found in shape at (0, 0).")
+	}
+	if !IsPointInShape(gc, offscreen, 900, 900, rect) {
+		t.Error("Point incorrectly not found in shape at (900, 900).")
+	}
+	if !IsPointInShape(gc, offscreen, 999, 999, rect) {
+		t.Error("Point incorrectly not found in shape at (999, 999).")
+	}
+	if IsPointInShape(gc, offscreen, 1000, 1000, rect) {
+		t.Error("Point incorrectly found in shape at (1000, 1000).")
 	}
 
-	window.Destroy()
 	offscreen.Destroy()
+}
+
+var offscreen *glfw.Window // Exists solely so the example can compile
+
+func ExampleIsPointInShape() {
+	rect := &draw2d.Path{}
+	draw2dkit.Rectangle(rect, -1, -1, 1000, 1000)
+
+	IsPointInShape(gc, offscreen, -1, -1, rect)     // returns true
+	IsPointInShape(gc, offscreen, 1000, 1000, rect) // returns false
+
 }
 
 func TestMain(m *testing.M) {

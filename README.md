@@ -2,16 +2,16 @@ draw2dglkit
 ======
 [![GoDoc](https://godoc.org/github.com/redstarcoder/draw2dglkit?status.svg)](https://godoc.org/github.com/redstarcoder/draw2dglkit)
 
-Package draw2dglkit offers useful tools for using [draw2d](https://github.com/llgcode/draw2d) with `draw2dgl` such as `IsPointInShape`.
+Package draw2dglkit offers useful tools for using [draw2d](https://github.com/llgcode/draw2d) with OpenGL.
 
 Benchmarks
 ---------------
 
 ```
 $ go test -cpu 1 -bench .
-BenchmarkIsPointInShape 	   10000	    124173 ns/op
+BenchmarkIsPointInShape 	   10000	    151902 ns/op
 PASS
-ok  	github.com/redstarcoder/draw2dglkit	2.938s
+ok  	github.com/redstarcoder/draw2dglkit	2.349s
 ```
 
 Installation
