@@ -19,7 +19,7 @@ func IsPointInShape(gc draw2d.GraphicContext, offscreen *glfw.Window, x, y float
 	offscreen.MakeContextCurrent()
 
 	// 1 added to solved ReadPixels bug regarding y 0
-	gc.Translate(-x+1, -y+1)
+	gc.SetMatrixTransform(draw2d.NewTranslationMatrix(-x+1, -y+1))
 
 	gc.SetStrokeColor(color.RGBA{255, 0, 0, 0xff})
 	gc.MoveTo(x, y)

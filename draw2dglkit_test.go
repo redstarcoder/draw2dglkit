@@ -75,6 +75,45 @@ func TestIsPointInShape(t *testing.T) {
 	offscreen.Destroy()
 }
 
+// This test is to ensure IsPointInShape ignores the current transformation matrix
+func TestIsPointInShapeTranslate(t *testing.T) {
+	width, height = 800, 600
+
+	glfw.WindowHint(glfw.Visible, glfw.False)
+	offscreen, err := glfw.CreateWindow(width, height, "Offscreen (You shouldnt see this)", nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	offscreen.MakeContextCurrent()
+	reshape(width, height)
+
+	rect := &draw2d.Path{}
+	draw2dkit.Rectangle(rect, -1, -1, 1000, 1000)
+
+	gc.Translate(1000, 1000)
+
+	if IsPointInShape(gc, offscreen, -2, -2, rect) {
+		t.Error("Point incorrectly found in shape at (-2, -2).")
+	}
+	if !IsPointInShape(gc, offscreen, -1, -1, rect) {
+		t.Error("Point incorrectly not found in shape at (-1, -1).")
+	}
+	if !IsPointInShape(gc, offscreen, 0, 0, rect) {
+		t.Error("Point incorrectly not found in shape at (0, 0).")
+	}
+	if !IsPointInShape(gc, offscreen, 900, 900, rect) {
+		t.Error("Point incorrectly not found in shape at (900, 900).")
+	}
+	if !IsPointInShape(gc, offscreen, 999, 999, rect) {
+		t.Error("Point incorrectly not found in shape at (999, 999).")
+	}
+	if IsPointInShape(gc, offscreen, 1000, 1000, rect) {
+		t.Error("Point incorrectly found in shape at (1000, 1000).")
+	}
+
+	offscreen.Destroy()
+}
+
 var offscreen *glfw.Window // Exists solely so the example can compile
 
 func ExampleIsPointInShape() {
