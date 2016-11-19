@@ -9,9 +9,10 @@ Benchmarks
 
 ```
 $ go test -cpu 1 -bench .
-BenchmarkIsPointInShape 	   10000	    151902 ns/op
+BenchmarkFillWithin     	  100000	     19896 ns/op
+BenchmarkIsPointInShape 	   10000	    159035 ns/op
 PASS
-ok  	github.com/redstarcoder/draw2dglkit	2.349s
+ok  	github.com/redstarcoder/draw2dglkit	4.674s
 ```
 
 Installation
