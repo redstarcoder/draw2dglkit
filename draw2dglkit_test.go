@@ -1,6 +1,7 @@
 package draw2dglkit
 
 import (
+	"image/color"
 	"os"
 	"runtime"
 	"testing"
@@ -16,6 +17,84 @@ var (
 	width, height int
 	gc            draw2d.GraphicContext
 )
+
+func BenchmarkFillWithin(b *testing.B) {
+	width, height = 800, 600
+
+	glfw.WindowHint(glfw.Visible, glfw.False)
+	offscreen, err := glfw.CreateWindow(width, height, "Offscreen (You shouldnt see this)", nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	offscreen.MakeContextCurrent()
+	reshape(width, height)
+
+	rect := &draw2d.Path{}
+	draw2dkit.Rectangle(rect, 0, 0, 150, 150)
+
+	gc.BeginPath()
+	gc2 := gc.(*draw2dgl.GraphicContext)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		FillWithin(gc2, 50, 50, 50, 50, rect)
+	}
+	b.StopTimer()
+	offscreen.Destroy()
+}
+
+func getcolor(x, y, height int32) color.RGBA {
+	data := make([]byte, 4)
+	// gl.ReadPixels is upside-down
+	gl.ReadPixels(x, height-y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, gl.Ptr(data))
+
+	return color.RGBA{data[0], data[1], data[2], data[3]}
+}
+
+func TestFillWithin(t *testing.T) {
+	width, height = 800, 600
+
+	glfw.WindowHint(glfw.Visible, glfw.False)
+	offscreen, err := glfw.CreateWindow(width, height, "Offscreen (You shouldnt see this)", nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	offscreen.MakeContextCurrent()
+	reshape(width, height)
+
+	rect := &draw2d.Path{}
+	draw2dkit.Rectangle(rect, 0, 0, 150, 150)
+
+	gc.BeginPath()
+	gc2 := gc.(*draw2dgl.GraphicContext)
+
+	_, h := offscreen.GetFramebufferSize()
+	height := int32(h)
+	gl.ReadBuffer(gl.BACK)
+
+	red := color.RGBA{255, 0, 0, 0xff}
+	green := color.RGBA{0, 255, 0, 0xff}
+
+	gc.SetFillColor(red)
+	gc.Fill(rect)
+	gc.SetFillColor(green)
+	FillWithin(gc2, 50, 50, 50, 50, rect)
+
+	if getcolor(1, 1, height) != red {
+		t.Error("(1, 1)")
+	}
+	if getcolor(50, 50, height) != green {
+		t.Error("(50, 50)")
+	}
+	if getcolor(99, 99, height) != green {
+		t.Error("(99, 99)")
+	}
+	if getcolor(149, 149, height) != red {
+		t.Error("(149, 149)")
+	}
+
+	offscreen.Destroy()
+}
 
 func BenchmarkIsPointInShape(b *testing.B) {
 	width, height = 800, 600

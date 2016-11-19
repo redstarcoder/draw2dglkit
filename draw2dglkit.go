@@ -6,7 +6,11 @@ import (
 
 	"github.com/go-gl/gl/v2.1/gl"
 	"github.com/go-gl/glfw/v3.1/glfw"
+	"github.com/golang/freetype/raster"
 	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dbase"
+	"github.com/llgcode/draw2d/draw2dgl"
+	"github.com/llgcode/draw2d/draw2dimg"
 )
 
 // IsPointInShape uses offscreen as a backbuffer. It checks to see if x, y are inside of poly by drawing a
@@ -21,16 +25,18 @@ func IsPointInShape(gc draw2d.GraphicContext, offscreen *glfw.Window, x, y float
 	// 1 added to solved ReadPixels bug regarding y 0
 	gc.SetMatrixTransform(draw2d.NewTranslationMatrix(-x+1, -y+1))
 
+	gc.BeginPath()
 	gc.SetStrokeColor(color.RGBA{255, 0, 0, 0xff})
 	gc.MoveTo(x, y)
 	gc.LineTo(x+1, y+1)
 	gc.Stroke()
 
 	green := color.RGBA{0, 255, 0, 0xff}
+	gc.BeginPath()
 	gc.SetFillColor(green)
 	gc.Fill(poly)
 
-	_, height := offscreen.GetSize()
+	_, height := offscreen.GetFramebufferSize()
 
 	gl.ReadBuffer(gl.BACK)
 	data := make([]byte, 4)
@@ -40,4 +46,32 @@ func IsPointInShape(gc draw2d.GraphicContext, offscreen *glfw.Window, x, y float
 	window.MakeContextCurrent()
 	gc.Restore()
 	return color.RGBA{data[0], data[1], data[2], data[3]} == green
+}
+
+// FillWithin does a gc.Fill, only painting within the specified boundaries.
+// BUG(x) FillWithin uses a *draw2dgl.GraphicContext struct instead of a draw2d.GraphicContext interface.
+func FillWithin(gc *draw2dgl.GraphicContext, x, y float64, width, height int, paths ...*draw2d.Path) {
+	paths = append(paths, gc.Current.Path)
+	rasterizer := &raster.Rasterizer{UseNonZeroWinding: gc.Current.FillRule == draw2d.FillRuleWinding}
+	rasterizer.SetBounds(width, height)
+
+	tr := gc.GetMatrixTransform()
+	tr.Translate(-x, -y)
+	flattener := draw2dbase.Transformer{Tr: tr, Flattener: draw2dimg.FtLineBuilder{Adder: rasterizer}}
+	for _, p := range paths {
+		draw2dbase.Flatten(p, flattener, tr.GetScale())
+	}
+
+	p := draw2dgl.NewPainter()
+	gl.PushMatrix()
+	gl.Translated(x, y, 0)
+
+	//paint
+	p.SetColor(gc.Current.FillColor)
+	rasterizer.Rasterize(p)
+	rasterizer.Clear()
+	p.Flush()
+	gc.Current.Path.Clear()
+
+	gl.PopMatrix()
 }
