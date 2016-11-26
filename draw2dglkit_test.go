@@ -27,6 +27,10 @@ func BenchmarkFillWithin(b *testing.B) {
 		panic(err)
 	}
 	offscreen.MakeContextCurrent()
+	err = gl.Init()
+	if err != nil {
+		panic(err)
+	}
 	reshape(width, height)
 
 	rect := &draw2d.Path{}
@@ -60,6 +64,10 @@ func TestFillWithin(t *testing.T) {
 		panic(err)
 	}
 	offscreen.MakeContextCurrent()
+	err = gl.Init()
+	if err != nil {
+		panic(err)
+	}
 	reshape(width, height)
 
 	rect := &draw2d.Path{}
@@ -105,6 +113,10 @@ func BenchmarkIsPointInShape(b *testing.B) {
 		panic(err)
 	}
 	offscreen.MakeContextCurrent()
+	err = gl.Init()
+	if err != nil {
+		panic(err)
+	}
 	reshape(width, height)
 
 	rect := &draw2d.Path{}
@@ -127,6 +139,10 @@ func TestIsPointInShape(t *testing.T) {
 		panic(err)
 	}
 	offscreen.MakeContextCurrent()
+	err = gl.Init()
+	if err != nil {
+		panic(err)
+	}
 	reshape(width, height)
 
 	rect := &draw2d.Path{}
@@ -164,6 +180,10 @@ func TestIsPointInShapeTranslate(t *testing.T) {
 		panic(err)
 	}
 	offscreen.MakeContextCurrent()
+	err = gl.Init()
+	if err != nil {
+		panic(err)
+	}
 	reshape(width, height)
 
 	rect := &draw2d.Path{}
@@ -235,10 +255,6 @@ func reshape(w, h int) {
 func init() {
 	runtime.LockOSThread()
 	err := glfw.Init()
-	if err != nil {
-		panic(err)
-	}
-	err = gl.Init()
 	if err != nil {
 		panic(err)
 	}
